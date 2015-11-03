@@ -20,6 +20,8 @@ import (
 )
 
 ///////////////////////////////////////////
+
+// Basic implements the PointGenerator interface
 type Basic struct {
 	PointCount  int
 	Tick        string
@@ -32,6 +34,8 @@ type Basic struct {
 	time      time.Time
 }
 
+// Generate returns a receiving Point
+// channel.
 func (b *Basic) Generate() <-chan Point {
 	c := make(chan Point, 0)
 
@@ -81,6 +85,7 @@ type BasicClient struct {
 	SSL         bool
 }
 
+// Abstract out more
 func (c *BasicClient) Batch(ps <-chan Point, r chan<- response) {
 	var buf bytes.Buffer
 	var wg sync.WaitGroup
@@ -182,7 +187,7 @@ func (q *BasicQuery) QueryGenerate() <-chan Query {
 
 		for i := 0; i < 1000; i++ {
 			time.Sleep(10 * time.Millisecond)
-			//c <- q.Template
+			c <- q.Template
 		}
 
 	}(c)
@@ -216,9 +221,18 @@ func (b *BasicQueryClient) Query(cmd Query) response {
 		Command:  string(cmd),
 		Database: b.Database,
 	}
-	_, _ = b.client.Query(q)
 
-	r := response{}
+	t := NewTimer()
+
+	t.StartTimer()
+	_, _ = b.client.Query(q)
+	t.StopTimer()
+
+	// Needs actual response type
+	r := response{
+		Time:  time.Now(),
+		Timer: t,
+	}
 
 	return r
 
@@ -287,7 +301,7 @@ func main() {
 	w := NewWriter(b, c)
 
 	qg := &BasicQuery{
-		Template: Query("SELECT * FROM cpu"),
+		Template: Query("SELECT * FROM cpu WHERE host='server-1'"),
 	}
 
 	qc := &BasicQueryClient{
