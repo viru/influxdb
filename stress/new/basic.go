@@ -14,7 +14,6 @@ import (
 
 	"os"
 	"runtime/pprof"
-	//"github.com/influxdb/strees/provisioner"
 
 	"github.com/influxdb/influxdb/client/v2"
 )
@@ -185,7 +184,7 @@ func (q *BasicQuery) QueryGenerate() <-chan Query {
 	go func(chan Query) {
 		defer close(c)
 
-		for i := 0; i < 1000; i++ {
+		for i := 0; i < 250; i++ {
 			time.Sleep(10 * time.Millisecond)
 			c <- Query(fmt.Sprintf(string(q.Template), i))
 		}
@@ -216,7 +215,7 @@ func (b *BasicQueryClient) Init() {
 	b.client = cl
 }
 
-func (b *BasicQueryClient) Query(cmd Query) response {
+func (b *BasicQueryClient) Query(cmd Query, ts time.Time) response {
 	q := client.Query{
 		Command:  string(cmd),
 		Database: b.Database,
@@ -361,22 +360,6 @@ func main() {
 
 	s := NewStressTest(bp, w, r)
 
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-	go func() {
-		s.Start(BasicWriteHandler, BasicReadHandler)
-		wg.Done()
-
-		f, err := os.Create("memprofile")
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		pprof.WriteHeapProfile(f)
-		f.Close()
-	}()
-
-	wg.Wait()
+	s.Start(BasicWriteHandler, BasicReadHandler)
 
 }

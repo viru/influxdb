@@ -95,6 +95,7 @@ func (p *Point) Line() []byte {
 	return byt
 }
 
+// TODO: implement
 // Graphite returns a byte array for a point
 // in graphite-protocol format
 func (p *Point) Graphite() []byte {
@@ -105,6 +106,7 @@ func (p *Point) Graphite() []byte {
 	return []byte(t)
 }
 
+// TODO: implement
 // OpenJSON returns a byte array for a point
 // in JSON format
 func (p *Point) OpenJSON() []byte {
@@ -131,6 +133,7 @@ func (p *Point) OpenJSON() []byte {
 	return []byte("hello")
 }
 
+// TODO: implement
 // OpenTelnet returns a byte array for a point
 // in OpenTSDB-telnet format
 func (p *Point) OpenTelnet() []byte {
@@ -173,10 +176,6 @@ type QueryResponse struct {
 	response
 	Body string
 }
-
-//type ResponseHandler interface {
-//	Handle(r <-chan response)
-//}
 
 ////////////////////////////////////////
 
@@ -224,7 +223,7 @@ type QueryGenerator interface {
 // QueryClient is an interface that can write a query
 // to an InfluxDB instance.
 type QueryClient interface {
-	Query(q Query) response
+	Query(q Query, t time.Time) response
 	//ResponseHandler
 }
 
@@ -306,7 +305,7 @@ func (s *StressTest) Start(wHandle responseHandler, rHandle responseHandler) {
 			for q := range s.QueryGenerate() {
 				// Not real needs more implementation
 				time.Sleep(100 * time.Millisecond)
-				r <- s.Query(q)
+				r <- s.Query(q, s.Time())
 			}
 			rt.StopTimer()
 			wg.Done()
