@@ -22,7 +22,7 @@ type AbstractTag struct {
 	Value string `toml:"value"`
 }
 
-// AbstractTags is an slice of abstract tags
+// AbstractTags is a slice of abstract tags
 type AbstractTags []AbstractTag
 
 func (a AbstractTags) Tag(i int) Tags {
@@ -62,7 +62,7 @@ type AbstractField struct {
 	Type string `toml:"type"`
 }
 
-// AbstractFields is an slice of abstract fields
+// AbstractFields is a slice of abstract fields
 type AbstractFields []AbstractField
 
 func (a AbstractFields) Field() Fields {
@@ -250,8 +250,8 @@ func (b *BasicPointGenerator) Generate() <-chan Point {
 // for the PointGenerator interface.
 func (b *BasicPointGenerator) Time() time.Time {
 	b.mu.Lock()
+	defer b.mu.Unlock()
 	t := b.time
-	b.mu.Unlock()
 	return t
 }
 
@@ -291,18 +291,19 @@ func (c *BasicClient) Batch(ps <-chan Point, r chan<- response) {
 		if ctr%c.BatchSize == 0 && ctr != 0 {
 			b := buf.Bytes()
 
-			b = b[0 : len(b)-2]
+			// Trimming the trailing newline character
+			b = b[0 : len(b)-1]
 
 			wg.Add(1)
 			counter.Increment()
 			go func(byt []byte) {
+				defer wg.Done()
 
 				rs := c.send(byt)
 				time.Sleep(interval)
 
 				counter.Decrement()
 				r <- rs
-				wg.Done()
 			}(b)
 
 			var temp bytes.Buffer
@@ -316,7 +317,6 @@ func (c *BasicClient) Batch(ps <-chan Point, r chan<- response) {
 
 // post sends a post request with a payload of points
 func post(url string, datatype string, data io.Reader) (*http.Response, error) {
-
 	resp, err := http.Post(url, datatype, data)
 	if err != nil {
 		return nil, err
@@ -371,7 +371,6 @@ func (q *BasicQuery) QueryGenerate() <-chan Query {
 		defer close(c)
 
 		for i := 0; i < q.QueryCount; i++ {
-			time.Sleep(10 * time.Millisecond)
 			c <- Query(fmt.Sprintf(string(q.Template), i))
 		}
 
@@ -383,7 +382,6 @@ func (q *BasicQuery) QueryGenerate() <-chan Query {
 // SetTime sets the internal state of time
 func (q *BasicQuery) SetTime(t time.Time) {
 	q.time = t
-
 	return
 }
 
@@ -414,8 +412,6 @@ func (b *BasicQueryClient) Query(cmd Query, ts time.Time) response {
 	}
 
 	t := NewTimer()
-
-	t.StartTimer()
 	_, _ = b.client.Query(q)
 	t.StopTimer()
 
@@ -445,9 +441,9 @@ func (b *BasicQueryClient) Exec(qs <-chan Query, r chan<- response, now func() t
 		wg.Add(1)
 		counter.Increment()
 		func(q Query, t time.Time) {
+			defer wg.Done()
 			r <- b.Query(q, t)
 			time.Sleep(interval)
-			wg.Done()
 			counter.Decrement()
 		}(q, now())
 	}
@@ -455,16 +451,14 @@ func (b *BasicQueryClient) Exec(qs <-chan Query, r chan<- response, now func() t
 	wg.Wait()
 }
 
-///////////////////
-
 // resetDB will drop an create a new database on an existing
 // InfluxDB instance.
 func resetDB(c client.Client, database string) error {
 	_, err := c.Query(client.Query{
-		Command: fmt.Sprintf("DROP DATABASE %s", database),
+		Command: fmt.Sprintf("DROP DATABASE %s IF EXISTS", database),
 	})
 
-	if err != nil && !strings.Contains(err.Error(), "database not found") {
+	if err != nil {
 		return err
 	}
 
