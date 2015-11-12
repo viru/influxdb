@@ -40,14 +40,11 @@ func Write(w http.ResponseWriter, req *http.Request) {
 	fmt.Printf("Reqests Per Second: %v\n", hitspersecond)
 	fmt.Printf("Count: %v\n", n)
 
-	// Doesnt work
-	go func(req *http.Request) {
-		content, _ := ioutil.ReadAll(req.Body)
-		m.Lock()
-		w := strings.Split(string(content), "\n")
-		linecount += len(w)
-		m.Unlock()
-	}(req)
+	content, _ := ioutil.ReadAll(req.Body)
+	m.Lock()
+	arr := strings.Split(string(content), "\n")
+	linecount += len(arr)
+	m.Unlock()
 
 	fmt.Printf("Line Count: %v\n\n", linecount)
 }
