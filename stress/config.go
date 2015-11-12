@@ -55,6 +55,7 @@ type QueryClients struct {
 	Basic BasicQueryClient `toml:"basic"`
 }
 
+// NewConfig returns a pointer to a Config
 func NewConfig(s string) (*Config, error) {
 	var c *Config
 	var err error

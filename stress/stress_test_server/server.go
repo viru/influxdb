@@ -19,10 +19,12 @@ var (
 	m             sync.Mutex
 )
 
+// Query handles /query endpoint
 func Query(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "du")
 }
 
+// Count handles /count endpoint
 func Count(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, fmt.Sprintf("%v", linecount))
 }
@@ -30,11 +32,12 @@ func Count(w http.ResponseWriter, req *http.Request) {
 var n int
 var linecount int
 
+// Write handles /write endpoints
 func Write(w http.ResponseWriter, req *http.Request) {
 	mu.Lock()
-	n += 1
+	n++
 	mu.Unlock()
-	counter.Incr(1)
+
 	hitspersecond.Set(counter.Rate())
 	w.WriteHeader(http.StatusNoContent)
 	fmt.Printf("Reqests Per Second: %v\n", hitspersecond)

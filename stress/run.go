@@ -75,7 +75,7 @@ func (f Fields) fieldset() []byte {
 	return b
 }
 
-// Point represents a point in InfluxDB
+// StdPoint represents a point in InfluxDB
 type StdPoint struct {
 	Measurement string
 	Tags        Tags
@@ -100,10 +100,10 @@ func (p StdPoint) Line() []byte {
 	return byt
 }
 
-// TODO: implement
 // Graphite returns a byte array for a point
 // in graphite-protocol format
 func (p StdPoint) Graphite() []byte {
+	// TODO: implement
 	// timestamp is at second level resolution
 	// but can be specified as a float to get nanosecond
 	// level precision
@@ -111,10 +111,10 @@ func (p StdPoint) Graphite() []byte {
 	return []byte(t)
 }
 
-// TODO: implement
 // OpenJSON returns a byte array for a point
 // in JSON format
 func (p StdPoint) OpenJSON() []byte {
+	// TODO: implement
 	//[
 	//    {
 	//        "metric": "sys.cpu.nice",
@@ -138,10 +138,10 @@ func (p StdPoint) OpenJSON() []byte {
 	return []byte("hello")
 }
 
-// TODO: implement
 // OpenTelnet returns a byte array for a point
 // in OpenTSDB-telnet format
 func (p StdPoint) OpenTelnet() []byte {
+	// TODO: implement
 	// timestamp can be 13 digits at most
 	// sys.cpu.nice timestamp value tag_key_1=tag_value_1 tag_key_2=tag_value_2
 	return []byte("hello")
@@ -161,11 +161,7 @@ type response struct {
 // was successful and false otherwise.
 func (r response) Success() bool {
 	// ADD success for tcp, udp, etc
-	if r.Resp == nil || r.Resp.StatusCode != 204 {
-		return false
-	} else {
-		return true
-	}
+	return !(r.Resp == nil || r.Resp.StatusCode != 204)
 }
 
 // WriteResponse is a response for a Writer
@@ -237,7 +233,7 @@ type Querier struct {
 	QueryClient
 }
 
-// Querier returns a Querier.
+// NewQuerier returns a Querier.
 func NewQuerier(q QueryGenerator, c QueryClient) Querier {
 	r := Querier{
 		QueryGenerator: q,

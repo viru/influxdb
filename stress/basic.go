@@ -24,19 +24,6 @@ type AbstractTag struct {
 // AbstractTags is a slice of abstract tags
 type AbstractTags []AbstractTag
 
-func (a AbstractTags) Tag(i int) Tags {
-	tags := make(Tags, len(a))
-
-	for j, t := range a {
-		tags[j] = Tag{
-			Key:   t.Key,
-			Value: fmt.Sprintf("%v-%v", t.Value, i),
-		}
-	}
-
-	return tags
-}
-
 // Template returns a templated string of tags
 func (t AbstractTags) Template() string {
 	var buf bytes.Buffer
@@ -63,29 +50,6 @@ type AbstractField struct {
 
 // AbstractFields is a slice of abstract fields
 type AbstractFields []AbstractField
-
-func (a AbstractFields) Field() Fields {
-	fields := make(Fields, len(a))
-
-	for i, f := range a {
-		field := Field{Key: f.Key}
-		switch f.Type {
-		case "float64":
-			field.Value = fmt.Sprintf("%v", rand.Intn(1000))
-		case "int":
-			field.Value = fmt.Sprintf("%vi", rand.Intn(1000))
-		case "bool":
-			b := rand.Intn(2) == 1
-			field.Value = fmt.Sprintf("%v", b)
-		default:
-			field.Value = fmt.Sprintf("%v", rand.Intn(1000))
-		}
-
-		fields[i] = field
-	}
-
-	return fields
-}
 
 // Template returns a templated string of fields
 func (f AbstractFields) Template() (string, []string) {
@@ -197,7 +161,7 @@ func (p Pnt) OpenJSON() []byte {
 	return []byte("")
 }
 
-// OpenJSON returns a byte array for a point
+// OpenTelnet returns a byte array for a point
 // in opentsdb-telnet format
 func (p Pnt) OpenTelnet() []byte {
 	// TODO: Implement
@@ -498,12 +462,12 @@ func BasicWriteHandler(rs <-chan response, wt *Timer) {
 
 	for t := range rs {
 
-		n += 1
+		n++
 
 		if t.Success() {
-			success += 1
+			success++
 		} else {
-			fail += 1
+			fail++
 		}
 
 		s += t.Timer.Elapsed()
@@ -522,7 +486,7 @@ func BasicReadHandler(r <-chan response, rt *Timer) {
 	n := 0
 	s := time.Duration(0)
 	for t := range r {
-		n += 1
+		n++
 		s += t.Timer.Elapsed()
 	}
 
