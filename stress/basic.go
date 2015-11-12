@@ -338,9 +338,8 @@ func post(url string, datatype string, data io.Reader) (*http.Response, error) {
 // Send calls post and returns a response
 func (c *BasicClient) send(b []byte) response {
 	instanceURL := fmt.Sprintf("http://%v/write?db=%v&precision=%v", c.Address, c.Database, c.Precision)
-	t := NewTimer()
 
-	t.StartTimer()
+	t := NewTimer()
 	resp, err := post(instanceURL, "application/x-www-form-urlencoded", bytes.NewBuffer(b))
 	t.StopTimer()
 	if err != nil {

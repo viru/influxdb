@@ -37,11 +37,7 @@ func main() {
 		return
 	}
 
-	w := stress.NewWriter(&c.Write.PointGenerators.Basic, &c.Write.InfluxClients.Basic)
-	r := stress.NewReader(&c.Read.QueryGenerators.Basic, &c.Read.QueryClients.Basic)
-	s := stress.NewStressTest(&c.Provision.Basic, w, r)
-
-	s.Start(stress.BasicWriteHandler, stress.BasicReadHandler)
+	stress.Run(c)
 
 	return
 

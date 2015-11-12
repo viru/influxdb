@@ -8,6 +8,15 @@ import (
 	"time"
 )
 
+// Run handles the logic for running a stress test given a config file
+func Run(c *Config) {
+	w := NewWriter(&c.Write.PointGenerators.Basic, &c.Write.InfluxClients.Basic)
+	r := NewReader(&c.Read.QueryGenerators.Basic, &c.Read.QueryClients.Basic)
+	s := NewStressTest(&c.Provision.Basic, w, r)
+
+	s.Start(BasicWriteHandler, BasicReadHandler)
+}
+
 // Point is an interface that is used to represent
 // the abstract idea of a point in InfluxDB.
 type Point interface {
@@ -277,7 +286,6 @@ func (s *StressTest) Start(wHandle responseHandler, rHandle responseHandler) {
 		wt := NewTimer()
 
 		go func() {
-			wt.StartTimer()
 			s.Batch(s.Generate(), r)
 			wt.StopTimer()
 			close(r)
@@ -295,7 +303,6 @@ func (s *StressTest) Start(wHandle responseHandler, rHandle responseHandler) {
 		rt := NewTimer()
 
 		go func() {
-			rt.StartTimer()
 			s.Exec(s.QueryGenerate(), r, s.Time)
 			rt.StopTimer()
 			close(r)
