@@ -8,15 +8,14 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
-	"strings"
 	"sync"
 	"time"
 
 	"github.com/influxdb/influxdb/client/v2"
 )
 
-// AbstractTag is a struct that contains data
-// about a tag for in a series
+// AbstractTag is a struct that abstractly
+// defines a tag
 type AbstractTag struct {
 	Key   string `toml:"key"`
 	Value string `toml:"value"`
@@ -55,8 +54,8 @@ func (t AbstractTags) Template() string {
 	return string(b)
 }
 
-// tag is a struct that contains data
-// about a field for in a series
+// AbstractField is a struct that abstractly
+// defines a field
 type AbstractField struct {
 	Key  string `toml:"key"`
 	Type string `toml:"type"`
