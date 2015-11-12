@@ -11,7 +11,7 @@ import (
 // Run handles the logic for running a stress test given a config file
 func Run(c *Config) {
 	w := NewWriter(&c.Write.PointGenerators.Basic, &c.Write.InfluxClients.Basic)
-	r := NewReader(&c.Read.QueryGenerators.Basic, &c.Read.QueryClients.Basic)
+	r := NewQuerier(&c.Read.QueryGenerators.Basic, &c.Read.QueryClients.Basic)
 	s := NewStressTest(&c.Provision.Basic, w, r)
 
 	s.Start(BasicWriteHandler, BasicReadHandler)
@@ -171,7 +171,7 @@ func (r response) Success() bool {
 // WriteResponse is a response for a Writer
 type WriteResponse response
 
-// QueryResponse is a response for a Reader
+// QueryResponse is a response for a Querier
 type QueryResponse struct {
 	response
 	Body string
@@ -210,9 +210,9 @@ func NewWriter(p PointGenerator, i InfluxClient) Writer {
 	return w
 }
 
-///////////////////////////////
-// Definition of the Reader ///
-///////////////////////////////
+////////////////////////////////
+// Definition of the Querier ///
+////////////////////////////////
 
 // Query is query
 type Query string
@@ -231,15 +231,15 @@ type QueryClient interface {
 	Exec(qs <-chan Query, r chan<- response, f func() time.Time)
 }
 
-// Reader queries the database.
-type Reader struct {
+// Querier queries the database.
+type Querier struct {
 	QueryGenerator
 	QueryClient
 }
 
-// NewReader returns a Reader.
-func NewReader(q QueryGenerator, c QueryClient) Reader {
-	r := Reader{
+// Querier returns a Querier.
+func NewQuerier(q QueryGenerator, c QueryClient) Querier {
+	r := Querier{
 		QueryGenerator: q,
 		QueryClient:    c,
 	}
@@ -266,7 +266,7 @@ type Provisioner interface {
 type StressTest struct {
 	Provisioner
 	Writer
-	Reader
+	Querier
 }
 
 // responseHandler
@@ -317,11 +317,11 @@ func (s *StressTest) Start(wHandle responseHandler, rHandle responseHandler) {
 }
 
 // NewStressTest returns an instance of a StressTest
-func NewStressTest(p Provisioner, w Writer, r Reader) StressTest {
+func NewStressTest(p Provisioner, w Writer, r Querier) StressTest {
 	s := StressTest{
 		Provisioner: p,
 		Writer:      w,
-		Reader:      r,
+		Querier:     r,
 	}
 
 	return s
