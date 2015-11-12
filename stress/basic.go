@@ -248,8 +248,8 @@ func (b *BasicPointGenerator) Generate() <-chan Point {
 // that are being generated. Implements the Time method
 // for the PointGenerator interface.
 func (b *BasicPointGenerator) Time() time.Time {
-	b.mu.Lock()
 	defer b.mu.Unlock()
+	b.mu.Lock()
 	t := b.time
 	return t
 }
