@@ -18,8 +18,6 @@ var (
 )
 
 func main() {
-	var c *stress.Config
-	var err error
 
 	flag.Parse()
 
@@ -33,18 +31,10 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
-	if *config == "" {
-		c, err = stress.BasicStress()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	} else {
-		c, err = stress.DecodeFile(*config)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+	c, err := stress.NewConfig(*config)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 
 	w := stress.NewWriter(&c.Write.PointGenerators.Basic, &c.Write.InfluxClients.Basic)

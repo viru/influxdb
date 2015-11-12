@@ -55,6 +55,19 @@ type QueryClients struct {
 	Basic BasicQueryClient `toml:"basic"`
 }
 
+func NewConfig(s string) (*Config, error) {
+	var c *Config
+	var err error
+
+	if s == "" {
+		c, err = BasicStress()
+	} else {
+		c, err = DecodeFile(s)
+	}
+
+	return c, err
+}
+
 // DecodeFile takes a file path for a toml config file
 // and returns a pointer to a Config Struct.
 func DecodeFile(s string) (*Config, error) {
