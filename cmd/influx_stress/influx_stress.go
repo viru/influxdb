@@ -14,7 +14,7 @@ var (
 	//address   = flag.String("addr", "", "IP address and port of database (e.g., localhost:8086)")
 
 	config     = flag.String("config", "", "The stress test file")
-	cpuprofile = flag.String("cpuprofile", "", "File where cpu profile will be written")
+	cpuprofile = flag.String("cpuprofile", "", "Write the cpu profile to `filename`")
 )
 
 func main() {
