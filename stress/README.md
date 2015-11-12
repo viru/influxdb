@@ -1,7 +1,7 @@
 # Stress Test
 
 ## Provisioner
-Provisions the InfluxDB instance where the stress test is going to be ran against.
+Provisions the InfluxDB instance where the stress test is going to be run against.
 
 Think things like, creating the database, setting up retention policies, continuous queries, etc.
 
