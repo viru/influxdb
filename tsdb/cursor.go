@@ -3,6 +3,7 @@ package tsdb
 import (
 	"container/heap"
 	"encoding/binary"
+	"fmt"
 	"sort"
 	"strings"
 
@@ -197,6 +198,7 @@ func (tsc *TagSetCursor) Init(seek int64) {
 			continue
 		}
 
+		fmt.Printf("value %v, timestamp %d\n", v, k)
 		heap.Push(tsc.heap, &pointHeapItem{
 			timestamp: k,
 			value:     v,
@@ -232,6 +234,7 @@ func (tsc *TagSetCursor) Next(tmin, tmax int64) (int64, interface{}) {
 		// Keep track of the current tags for the series cursor so we can
 		// respond with them if asked
 		tsc.currentTags = p.cursor.tags
+		fmt.Printf("key: %s tags: %v, value %v, timestamp %d\n", tsc.key(), tsc.currentTags, value, timestamp)
 
 		// Advance the cursor.
 		if nextKey, nextVal := p.cursor.Next(); nextKey != -1 {
